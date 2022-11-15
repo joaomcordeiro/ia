@@ -135,11 +135,11 @@ class TkWindow:
         self.btn_find.place(x=230, y=460)
 
         self.cb_contrast_mode.place(x=200, y=360)
-        self.lbl_veloc.place(x=180, y=380)
+        self.lbl_veloc.place(x=180, y= 380)
         self.sld_veloc = Scale(from_=1, to=50, orient=HORIZONTAL)
         self.sld_veloc.set(20)
         self.sld_veloc.pack()
-        self.sld_veloc.place(x=180, y=400)
+        self.sld_veloc.place(x=180, y= 400)
 
         root.title('Pathfinder Settings')
         root.geometry("350x500+10+10")
@@ -157,7 +157,7 @@ class TkWindow:
         tmp_n_encomendas = int(self.t_n_encomendas.get())
         tmp_velocidade = int(self.sld_veloc.get())
 
-        refresh_rows_cols(tmp_rows, tmp_cols, tmp_cell_size, tmp_n_encomendas, tmp_velocidade)
+        refresh_rows_cols(tmp_rows, tmp_cols, tmp_cell_size, tmp_n_encomendas,tmp_velocidade)
         init_pygame()
 
     def change_algo_selection(self, event):
@@ -306,8 +306,8 @@ def init_grid():
     if source_coords and (source_coords[0] >= HEIGHT or source_coords[1] >= WIDTH):
         source_coords = None
 
-    # if destination_coords and (destination_coords[0] >= HEIGHT or destination_coords[1] >= WIDTH):
-    #     destination_coords = None
+    if destination_coords and (destination_coords[0] >= HEIGHT or destination_coords[1] >= WIDTH):
+        destination_coords = None
 
     if entrega_coords and (entrega_coords[0] >= HEIGHT or entrega_coords[1] >= WIDTH):
         entrega_coords = None
@@ -393,11 +393,11 @@ def reset_last_grid():
 
     pygame.display.update()
 
-    # if destination_coords:
-    #     destination_cell = matrix[destination_coords[0], destination_coords[1]]
-    #     pygame.draw.rect(screen, DESTINATION, destination_cell.shape)
-    #     matrix[destination_coords[0], destination_coords[1]] = node.Node(
-    #         destination_coords, destination_cell.shape.copy(), is_encomenda=True)
+    if destination_coords:
+        destination_cell = matrix[destination_coords[0], destination_coords[1]]
+        pygame.draw.rect(screen, DESTINATION, destination_cell.shape)
+        matrix[destination_coords[0], destination_coords[1]] = node.Node(
+            destination_coords, destination_cell.shape.copy(), is_encomenda=True)
 
     if source_coords:
         source_cell = matrix[source_coords[0], source_coords[1]]
@@ -410,7 +410,7 @@ def reset_last_grid():
         entrega_cell = matrix[entrega_coords[0], entrega_coords[1]]
         pygame.draw.rect(screen, ENTREGA, entrega_cell.shape)
         matrix[entrega_coords[0], entrega_coords[1]] = node.Node(entrega_coords, entrega_cell.shape.copy(),
-                                                                 distance_from_start=0, is_wall=False, is_visited=False,
+                                                                 distance_from_start=0, is_wall=True, is_visited=True,
                                                                  predecessor=None)
 
     pygame.display.update()
@@ -435,20 +435,11 @@ def load_grid():
             cell_size = decoded['cell_size']
             n_encomendas = decoded['n_encomendas']
             velocidade = decoded['velocidade']
-            gv.totalEncomendas = decoded['totalEncomendas']
-
-            for y in range(HEIGHT):
-                for x in range(WIDTH):
-                    matrix[y][x] = None
-                    # matrix[y][x] = node.Node((y,x), CELL, distance_from_start=np.inf,
-                    #                          is_wall=False, is_visited=False,f=np.inf, g=np.inf, h=np.inf,
-                    #                          is_encomenda=False,
-                    #                          predecessor=None)
 
             refresh_rows_cols(rows, cols, cell_size, n_encomendas, velocidade)
 
             source_coords = decoded['source_coords']
-            lstdestination_coords = decoded['svencomendas']
+            destination_coords = decoded['destination_coords']
             entrega_coords = decoded['entrega_coords']
 
             walls = decoded['walls']
@@ -465,31 +456,17 @@ def load_grid():
                 pygame.draw.rect(screen, WALL, rect)
                 wall_cell.is_wall = True
 
-            for destination_coord in lstdestination_coords:
-                encomenda_cell = matrix[destination_coord[0], destination_coord[1]]
-                rect = encomenda_cell.shape
-                pygame.draw.rect(screen, DESTINATION, rect)
-                encomenda_cell.is_encomenda = True
-
-            for co in lstdestination_coords:
-                encomenda_cell = matrix[co[0], co[1]]
-                matrix[co[0], co[1]] = node.Node(co, encomenda_cell.shape.copy(), distance_from_start=np.inf,
-                                                 is_wall=False, is_visited=False,f=np.inf, g=np.inf, h=np.inf,
-                                                 is_encomenda=True,
-                                                 predecessor=None)
-                gv.encomendas_coord.append(matrix[co[0], co[1]])
-
             pygame.display.update()
 
             """
             Drawing the destination
             """
-            # if destination_coords:
-            #     destination_cell = matrix[destination_coords[0],
-            #                               destination_coords[1]]
-            #     pygame.draw.rect(screen, DESTINATION, destination_cell.shape)
-            #     matrix[destination_coords[0], destination_coords[1]] = node.Node(
-            #         destination_coords, destination_cell.shape.copy())
+            if destination_coords:
+                destination_cell = matrix[destination_coords[0],
+                                          destination_coords[1]]
+                pygame.draw.rect(screen, DESTINATION, destination_cell.shape)
+                matrix[destination_coords[0], destination_coords[1]] = node.Node(
+                    destination_coords, destination_cell.shape.copy())
 
             """
             Drawing the source
@@ -499,7 +476,7 @@ def load_grid():
                 pygame.draw.rect(screen, SOURCE, source_cell.shape)
                 matrix[source_coords[0], source_coords[1]] = node.Node(source_coords, source_cell.shape.copy(),
                                                                        distance_from_start=0, is_wall=True,
-                                                                       is_visited=False,
+                                                                       is_visited=True,
                                                                        predecessor=None)
             """
             Drawing the Entrega point
@@ -508,8 +485,8 @@ def load_grid():
                 entrega_cell = matrix[entrega_coords[0], entrega_coords[1]]
                 pygame.draw.rect(screen, ENTREGA, entrega_cell.shape)
                 matrix[entrega_coords[0], entrega_coords[1]] = node.Node(entrega_coords, entrega_cell.shape.copy(),
-                                                                         distance_from_start=np.inf, is_wall=False,
-                                                                         is_visited=False,
+                                                                         distance_from_start=0, is_wall=True,
+                                                                         is_visited=True,
                                                                          predecessor=None)
 
             pygame.display.update()
@@ -526,19 +503,14 @@ def save_grid():
         f = open(fd, 'w')
         if f:
             walls = []
-            svencomendas = []
             for y in range(HEIGHT):
                 for x in range(WIDTH):
                     if matrix[y][x].is_wall and matrix[y][x].coords != source_coords:
                         walls.append((matrix[y][x].coords))
-            for y in range(HEIGHT):
-                for x in range(WIDTH):
-                    if matrix[y][x].is_encomenda and matrix[y][x].coords != source_coords:
-                        svencomendas.append((matrix[y][x].coords))
 
             text = {"rows": HEIGHT, "columns": WIDTH, "cell_size": CELL_SIZE, "source_coords": source_coords,
-                    "svencomendas": svencomendas, "walls": walls, "n_encomendas": N_ENCOMENDAS,
-                    "entrega_coords": entrega_coords, "velocidade": gv.timeWait, "totalEncomendas": gv.totalEncomendas}
+                    "destination_coords": destination_coords, "walls": walls, "n_encomendas": N_ENCOMENDAS,
+                    "entrega_coords": entrega_coords, "velocidade":gv.timeWait}
 
             js = json.dumps(text)
             f.write(js)
@@ -620,11 +592,12 @@ def mark_cell():
             if hover_node.is_encomenda:
                 gv.totalEncomendas -= 1
                 pygame.draw.rect(screen, CELL, hover_node.shape)
-                matrix[hover_node.coords[0], hover_node.coords[1]] = node.Node(hover_node.coords,
-                                                                               hover_node.shape.copy(),
-                                                                               distance_from_start=np.inf,
-                                                                               is_wall=False, is_visited=False,
-                                                                               predecessor=None)
+                # matrix[hover_node.coords[0], hover_node.coords[1]] = node.Node(hover_node.coords,
+                #                                                                hover_node.shape.copy(),
+                #                                                                distance_from_start=np.inf,
+                #                                                                is_wall=False, is_visited=False,
+                #                                                                is_encomenda=False,
+                #                                                                predecessor=None)
                 for co in range(len(gv.encomendas_coord) - 1):
                     if gv.encomendas_coord[co].coords == hover_node.coords: gv.encomendas_coord.pop(co)
             else:
@@ -638,6 +611,30 @@ def mark_cell():
                                                                                is_encomenda=True,
                                                                                predecessor=None)
                 gv.encomendas_coord.append(hover_node)
+        # if hover_node.coords is not source_coords and hover_node.coords is not destination_coords:
+        #     destination_cell = None
+        #
+        #     """
+        #     If there is no Destination node it initializes it, overwrites instead
+        #     """
+        #     if destination_coords is None:
+        #         destination_coords = x, y
+        #     else:
+        #         destination_cell = matrix[destination_coords[0],
+        #                                   destination_coords[1]]
+        #         pygame.draw.rect(screen, CELL, destination_cell.shape)
+        #
+        #         matrix[destination_coords[0], destination_coords[1]] = node.Node(
+        #             destination_coords, destination_cell.shape.copy())
+        #
+        #         destination_coords = x, y
+        #
+        #     destination_cell = matrix[destination_coords[0],
+        #                               destination_coords[1]]
+        #
+        #     pygame.draw.rect(screen, DESTINATION, destination_cell.shape)
+        #     matrix[destination_coords[0], destination_coords[1]] = node.Node(
+        #         destination_coords, destination_cell.shape.copy())
 
     """
     WALL CELL MODE
@@ -706,6 +703,7 @@ def find_path():
         reset_last_grid()
         path_found = False
 
+
     while gv.totalEncomendas > 0:
         path_found = False
         if gv.totalEncomendas < N_ENCOMENDAS:
@@ -728,11 +726,8 @@ def find_path():
                         source_node, gv.encomendas_coord[i]) + gv.encomendas_coord[i].g:
                         maiscurto = gv.encomendas_coord[i]
                 destination_coords = maiscurto.coords
-                encontrado = -1
-                for co in range(len(gv.encomendas_coord) ):
-                    if gv.encomendas_coord[co].coords == maiscurto.coords: encontrado = co
-                if encontrado >= 0:
-                    gv.encomendas_coord.pop(encontrado)
+                for co in range(len(gv.encomendas_coord) - 1):
+                    if gv.encomendas_coord[co].coords == maiscurto.coords: gv.encomendas_coord.pop(co)
                 gv.totalEncomendas -= 1
             else:
                 destination_coords = entrega_coords
@@ -770,7 +765,7 @@ def find_path():
                 if gv.algo_selection == 'DFS':
                     DFS()
     if gv.totalEncomendas == 0:
-        path_found = True
+            path_found = True
 
 
 def set_contrast_mode():
@@ -874,8 +869,6 @@ def Dijkstra():
         neighbours = find_neighbours(nearest_node.coords)
 
         for neighbour in neighbours:
-            if neighbour and neighbour.coords[0] == 10:
-                print("dd")
             if neighbour and not neighbour.is_visited and not neighbour.is_wall:
                 heapq.heappush(unvisited, neighbour)
                 mark_as_visited(neighbour, nearest_node, distance_from_start)
@@ -1050,7 +1043,7 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
         node.predecessor = predecessor
 
     # if node.coords != destination_coords:
-    if tuple(node.coords) != tuple(destination_coords):
+    if node.coords != destination_coords:
         if not node.is_encomenda and not node.coords == entrega_coords:
             pygame.time.wait(gv.timeWait)
             rect = node.shape
@@ -1079,6 +1072,7 @@ def limpar_visitados():
     rect = matrix[entrega_coords[0], entrega_coords[1]].shape
     pygame.draw.rect(screen, ENTREGA, rect)
     pygame.display.update()
+
 
 
 # def highlight_path(neighbour: node.Node):

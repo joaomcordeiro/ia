@@ -440,15 +440,11 @@ def load_grid():
             for y in range(HEIGHT):
                 for x in range(WIDTH):
                     matrix[y][x] = None
-                    # matrix[y][x] = node.Node((y,x), CELL, distance_from_start=np.inf,
-                    #                          is_wall=False, is_visited=False,f=np.inf, g=np.inf, h=np.inf,
-                    #                          is_encomenda=False,
-                    #                          predecessor=None)
 
             refresh_rows_cols(rows, cols, cell_size, n_encomendas, velocidade)
 
             source_coords = decoded['source_coords']
-            lstdestination_coords = decoded['svencomendas']
+            destination_coords = decoded['destination_coords']
             entrega_coords = decoded['entrega_coords']
 
             walls = decoded['walls']
@@ -465,16 +461,16 @@ def load_grid():
                 pygame.draw.rect(screen, WALL, rect)
                 wall_cell.is_wall = True
 
-            for destination_coord in lstdestination_coords:
+            for destination_coord in destination_coords:
                 encomenda_cell = matrix[destination_coord[0], destination_coord[1]]
                 rect = encomenda_cell.shape
                 pygame.draw.rect(screen, DESTINATION, rect)
                 encomenda_cell.is_encomenda = True
 
-            for co in lstdestination_coords:
+            for co in destination_coords:
                 encomenda_cell = matrix[co[0], co[1]]
                 matrix[co[0], co[1]] = node.Node(co, encomenda_cell.shape.copy(), distance_from_start=np.inf,
-                                                 is_wall=False, is_visited=False,f=np.inf, g=np.inf, h=np.inf,
+                                                 is_wall=False, is_visited=False,
                                                  is_encomenda=True,
                                                  predecessor=None)
                 gv.encomendas_coord.append(matrix[co[0], co[1]])
@@ -537,7 +533,7 @@ def save_grid():
                         svencomendas.append((matrix[y][x].coords))
 
             text = {"rows": HEIGHT, "columns": WIDTH, "cell_size": CELL_SIZE, "source_coords": source_coords,
-                    "svencomendas": svencomendas, "walls": walls, "n_encomendas": N_ENCOMENDAS,
+                    "destination_coords": svencomendas, "walls": walls, "n_encomendas": N_ENCOMENDAS,
                     "entrega_coords": entrega_coords, "velocidade": gv.timeWait, "totalEncomendas": gv.totalEncomendas}
 
             js = json.dumps(text)
@@ -1050,7 +1046,7 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
         node.predecessor = predecessor
 
     # if node.coords != destination_coords:
-    if tuple(node.coords) != tuple(destination_coords):
+    if node.coords != destination_coords:
         if not node.is_encomenda and not node.coords == entrega_coords:
             pygame.time.wait(gv.timeWait)
             rect = node.shape
