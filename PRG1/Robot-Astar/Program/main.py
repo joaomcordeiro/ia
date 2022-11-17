@@ -12,6 +12,7 @@ import json
 import GlobalVariables as gv
 import cl_node as node
 import cl_enum as enum
+import datetime
 # import algoritmos as al
 
 from pygame.locals import QUIT, KEYDOWN, K_RETURN, K_ESCAPE, K_BACKSPACE, K_s, K_d, K_w, MOUSEBUTTONDOWN, MOUSEBUTTONUP, \
@@ -112,7 +113,7 @@ class TkWindow:
 
         self.lbl_Estat = Label(win, text='Estatística')
         self.lbl_Estat.place(x=40, y=480)
-        self.t_estat = Text(win, width=30, height=3)
+        self.t_estat = Text(win, width=30, height=4)
         self.t_estat.place(x=40, y=500)
 
         root.title('Pathfinder Settings')
@@ -400,6 +401,7 @@ def load_grid():
     gv.totalVisitados = 0
     fd = filedialog.askopenfilename(
         initialdir='grid_saves', initialfile='grid0.dat')
+    gv.ultimoficheiroAberto = fd
     if fd:
         f = open(fd, 'r')
         if f:
@@ -522,6 +524,27 @@ def save_grid():
             f.close()
 
 
+def save_stats():
+    """
+    Saves grid-datas from file and starts the pygame windows
+    """
+    # fd = filedialog.asksaveasfilename(
+    #     initialdir='grid_saves', initialfile='stats.txt')
+    # fd = filedialog.askopenfilename(initialdir='grid_saves', initialfile='stats.txt', mode)
+    fd = "..\grid_saves\stats.csv"
+    # fd = filedialog.askopenfile(initialdir='grid_saves', initialfile='stats.txt', mode='a')
+    # fd = filedialog.askopenfile(initialdir='grid_saves', initialfile='stats.txt',mode='a+')
+
+    if fd:
+        f = open(fd, 'a+')
+        if f:
+            text = "\n" + str(gv.ultimoficheiroAberto)+","+str(gv.algo_selection)+","+ str(gv.totalVisitados)+","+str(gv.custoSolucao)+","+str(gv.tempoExecucao)
+
+            # js = json.dumps(text)
+            f.write(text)
+            f.close()
+
+
 def mark_cell():
     """
     Marks the cell hovered by the mouse cursor
@@ -534,7 +557,7 @@ def mark_cell():
     hover_node = matrix[x][y]
 
     """
-    SOURCE CELL MODE
+    SOURCE CELL MODE - Onde esta o Robot
     """
     if current_mode == EDITING_MODES.SOURCE:
         if hover_node.coords is not source_coords and hover_node.coords is not destination_coords:
@@ -590,7 +613,7 @@ def mark_cell():
                                                                      is_wall=False, is_visited=False, predecessor=None)
 
     """
-    DESTINATION CELL MODE
+    DESTINATION CELL MODE - Encomendas
     """
     if current_mode == EDITING_MODES.DESTINATION:
         if hover_node.coords is not source_coords and hover_node.coords is not entrega_coords:
@@ -682,9 +705,10 @@ def find_path():
     if path_found:
         reset_last_grid()
         path_found = False
-
-    settings_win.t_estat.delete("1.0","end")
+    settings_win.t_estat.delete("1.0", "end")
     gv.totalVisitados = 0
+    gv.custoSolucao = 0
+    gv.tempoExecucaoInicial = datetime.datetime.now()
     while gv.totalEncomendas > 0:
         path_found = False
         if gv.totalEncomendas < N_ENCOMENDAS:
@@ -749,7 +773,14 @@ def find_path():
                 if gv.algo_selection == 'DFS':
                     DFS()
     if gv.totalEncomendas == 0:
-        settings_win.t_estat.insert(END,"Número de nós visitados: "+ str(gv.totalVisitados))
+        gv.tempoExecucaoFinal = datetime.datetime.now()
+        gv.tempoExecucao = gv.tempoExecucaoFinal - gv.tempoExecucaoInicial
+        settings_win.t_estat.insert(END, "Número de nós visitados: " + str(gv.totalVisitados))
+        settings_win.t_estat.insert(END,
+                                    "\nTempo de execução de: " + str(gv.tempoExecucao.seconds) + " segundos e " + str(
+                                        gv.tempoExecucao.microseconds) + " microsegundos")
+        settings_win.t_estat.insert(END, "\nCusto da solução: " + str(gv.custoSolucao))
+        save_stats()
         path_found = True
 
 
@@ -1006,7 +1037,7 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
     """
     global destination_coords, path_found
 
-    gv.totalVisitados +=1
+    gv.totalVisitados += 1
     node.is_visited = True
     gv.nos_visitados.append(node)
     # if gv.algo_selection.get() == 'Dijkstra':
@@ -1031,6 +1062,7 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
         node.predecessor = predecessor
 
     # if node.coords != destination_coords:
+
     if tuple(node.coords) != tuple(destination_coords):
         if not node.is_encomenda and not node.coords == entrega_coords:
             pygame.time.wait(gv.timeWait)
@@ -1039,27 +1071,6 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
             pygame.display.update()
     else:
         path_found = True
-
-
-def limpar_visitados():
-    for no in gv.nos_visitados:
-        no.is_visited = False
-        no.distance_from_start = np.inf
-        no.g = np.inf
-        no.h = np.inf
-        no.f = np.inf
-        if not no.is_encomenda:
-            rect = no.shape
-            pygame.draw.rect(screen, CELL, rect)
-            pygame.display.update()
-
-    gv.nos_visitados.clear()
-    matrix[source_coords[0], source_coords[1]].distance_from_start = 0
-    rect = matrix[source_coords[0], source_coords[1]].shape
-    pygame.draw.rect(screen, SOURCE, rect)
-    rect = matrix[entrega_coords[0], entrega_coords[1]].shape
-    pygame.draw.rect(screen, ENTREGA, rect)
-    pygame.display.update()
 
 
 # def highlight_path(neighbour: node.Node):
@@ -1097,6 +1108,7 @@ def highlight_path():
 
     for num in range(len(caminho) - 1, -1, -1):
         if num < len(caminho) - 1: rect = caminho[num + 1].shape
+        gv.custoSolucao += 1
         pygame.draw.rect(screen, PATH, rect)
         source_coords = caminho[num].coords
         rect = caminho[num].shape
@@ -1114,19 +1126,28 @@ def highlight_path():
     pygame.display.update()
     pygame.time.wait(gv.timeWait)
     limpar_visitados()
-
-    # while current != source_node:
-    #     pygame.time.wait(1)
-    #     rect = current.shape
-    #     pygame.draw.rect(screen, PATH, rect)
-    #
-    #     pygame.display.update()
-    #
-    #     current = current.predecessor
-    #
-    #     path_lenght += 1
-
     print(path_lenght)
+
+
+def limpar_visitados():
+    for no in gv.nos_visitados:
+        no.is_visited = False
+        no.distance_from_start = np.inf
+        no.g = np.inf
+        no.h = np.inf
+        no.f = np.inf
+        if not no.is_encomenda:
+            rect = no.shape
+            pygame.draw.rect(screen, CELL, rect)
+            pygame.display.update()
+
+    gv.nos_visitados.clear()
+    matrix[source_coords[0], source_coords[1]].distance_from_start = 0
+    rect = matrix[source_coords[0], source_coords[1]].shape
+    pygame.draw.rect(screen, SOURCE, rect)
+    rect = matrix[entrega_coords[0], entrega_coords[1]].shape
+    pygame.draw.rect(screen, ENTREGA, rect)
+    pygame.display.update()
 
 
 def main():
