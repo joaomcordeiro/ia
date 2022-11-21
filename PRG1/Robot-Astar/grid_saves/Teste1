@@ -1,1 +1,0 @@
-{"rows": 20, "columns": 20, "cell_size": 30, "source_coords": [16, 3], "destination_coords": null, "walls": [[14, 11], [14, 12], [14, 13], [14, 14], [14, 15], [14, 16], [14, 17], [14, 18], [14, 19], [15, 11], [16, 11]], "n_encomendas": 2, "entrega_coords": [17, 14]}

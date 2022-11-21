@@ -186,7 +186,7 @@ HC_ENTREGA = (255, 0, 0)
 
 def close():
     """
-    Closes the program
+    Fecha o programa
     """
     global running \
         # , pygame_started
@@ -196,13 +196,13 @@ def close():
 
 
 """
-Settings Window (Tkinter)
+Definições da janela (Tkinter)
 """
 root = tk.Tk()
 root.protocol('WM_DELETE_WINDOW', close)
 
 """
-Grid Window (PyGame)
+Janela da grelha (PyGame)
 """
 screen = None
 
@@ -224,9 +224,7 @@ path_found = False
 running = True
 gv.pygame_started = False
 
-"""
-true when holding down the mouse button
-"""
+
 holding = False
 
 
@@ -240,7 +238,7 @@ def init_settings_window():
 
 def init_pygame():
     """
-    Starts the pygame window
+    Inícia a janela pygame
     """
     # global pygame_started, matrix, screen
     global matrix, screen
@@ -268,14 +266,14 @@ def init_pygame():
 
 def init_matrix():
     """
-    Returns a bidimensional matrix
+    Retorna uma matriz bidimensional
     """
     return np.empty((HEIGHT, WIDTH), dtype=node.Node)
 
 
 def init_grid():
     """
-    Initializes the grid into the pygame window
+    Inicializa a grelha na janela pygame
     """
     global screen, matrix, source_coords, destination_coords, entrega_coords
     PADDING = (WINDOW_WIDTH - MARGIN * WIDTH) // WIDTH
@@ -304,7 +302,7 @@ def init_grid():
 
 def refresh_rows_cols(rows, cols, cell_size, n_encomendas, velocidade):
     """
-    Refreshs the values for rows, columns and cell size
+    Reinicializa as variáveis rows, columns, cell size, encomenda e velocidade
     """
 
     global HEIGHT, WIDTH, WINDOW_WIDTH, WINDOW_HEIGHT, CELL_SIZE, N_ENCOMENDAS
@@ -395,7 +393,7 @@ def reset_last_grid():
 
 def load_grid():
     """
-    Loads grid-datas from file and starts the pygame windows
+    Abre o armazém de em ficheiro
     """
     global source_coords, destination_coords, matrix, entrega_coords
     gv.totalVisitados = 0
@@ -496,7 +494,7 @@ def load_grid():
 
 def save_grid():
     """
-    Saves grid-datas from file and starts the pygame windows
+    Guarda o armazém em ficheiro
     """
     fd = filedialog.asksaveasfilename(
         initialdir='grid_saves', initialfile='grid0.dat')
@@ -526,7 +524,7 @@ def save_grid():
 
 def save_stats():
     """
-    Saves grid-datas from file and starts the pygame windows
+    Guarda as estatísticas dos métodos de procura
     """
     # fd = filedialog.asksaveasfilename(
     #     initialdir='grid_saves', initialfile='stats.txt')
@@ -547,7 +545,7 @@ def save_stats():
 
 def mark_cell():
     """
-    Marks the cell hovered by the mouse cursor
+    Procedimento que trata das marcações na grelha, caso seja Robot, encomenda, obstáculo ou ponto de recolha
     """
     global matrix, screen, source_coords, destination_coords, entrega_coords
     coords = pygame.mouse.get_pos()
@@ -564,7 +562,8 @@ def mark_cell():
             source_cell = None
 
             """
-            If there is no Source node it initializes it, overwrites instead
+            Se não existe a célua do Robot, inicializa,s enão reescreve.
+
             """
             if source_coords is None:
                 source_coords = x, y
@@ -591,9 +590,6 @@ def mark_cell():
         if hover_node.coords is not source_coords and hover_node.coords is not destination_coords:
             entrega_cell = None
 
-            """
-            If there is no ENTREGA node it initializes it, overwrites instead
-            """
             if entrega_coords is None:
                 entrega_coords = x, y
             else:
@@ -693,7 +689,7 @@ def place_random_nodes():
 
 def find_path():
     """
-    Finds the path using the selected algorithm
+    Encontra o caminho pelo algoritmo selecionado
     """
 
     # global pygame_started, path_found
@@ -709,8 +705,17 @@ def find_path():
     gv.totalVisitados = 0
     gv.custoSolucao = 0
     gv.tempoExecucaoInicial = datetime.datetime.now()
+    """
+        Sempre que é colocada uma encomenda na grelha é adicionado 1 à variável gv.totalEncomendas
+        Assim, este ciclo irá executar até não haver mais encomendas para ser recolhidas.
+    """
     while gv.totalEncomendas > 0:
         path_found = False
+        """
+            "encomenda_ronda" estabelece o numero de encomendas que o robot irá buscar antes de as entregar ao ponto de recolha.
+            Se o número de encomendas existentes no armazém for inferior à capacidade de trasnporte do Robot, as viagens serão serão 
+            o numero de encomendas que faltam  
+        """
         if gv.totalEncomendas < N_ENCOMENDAS:
             encomenda_ronda = gv.totalEncomendas
         else:
@@ -724,6 +729,10 @@ def find_path():
             if i < encomenda_ronda:
                 maiscurto = gv.encomendas_coord[0]
                 maiscurto.g = 0
+                """
+                    Como o objetivo é que o robot efetue a recolha no menor tempo e custo possivel, adicionamos, logo à partida,
+                    código para verificar qual a encomenda que esta mais próxima do robot de forma a que esta seja o destino e objetivo do algoritmo de pesquisa
+                """
                 for i in range(1, len(gv.encomendas_coord)):
                     gv.encomendas_coord[i].g = 0
                     if calculate_manhattan_distance(source_node,
@@ -819,7 +828,7 @@ def set_contrast_mode():
 
 def check_for_events():
     """
-    Listens for events inside of the pygame window
+    Escuta eventos dentro da janela pygame
     """
     # global pygame_started, holding, screen
     global holding, screen
@@ -873,7 +882,9 @@ def Dijkstra():
     unvisited = [source]
 
     path_found = False
-
+    """
+    Utiliza uma lista heapq que simplifica a adição dos nós ainda não visitados e da escolha do nó com menor custo
+    """
     while unvisited:
         if path_found:
             highlight_path()
@@ -885,19 +896,19 @@ def Dijkstra():
         neighbours = find_neighbours(nearest_node.coords)
 
         for neighbour in neighbours:
-            if neighbour and neighbour.coords[0] == 10:
-                print("dd")
             if neighbour and not neighbour.is_visited and not neighbour.is_wall:
                 heapq.heappush(unvisited, neighbour)
                 mark_as_visited(neighbour, nearest_node, distance_from_start)
 
     if not unvisited or not path_found:
-        print('THERE IS NO PATH')
+        print('NÃO HÁ CAMINHO')
 
 
 def ASearch():
     global path_found
-
+    """
+    Utiliza uma lista PriorityQueue que simplifica a adição dos nós ainda não visitados e da escolha do nó com menor custo + menor distância
+    """
     source = matrix[source_coords[0], source_coords[1]]
     destination = matrix[destination_coords[0], destination_coords[1]]
 
@@ -936,7 +947,7 @@ def ASearch():
                         unvisited.put((neighbour.f, count, neighbour))
 
     if not unvisited or not path_found:
-        print('THERE IS NO PATH')
+        print('NÃO HÁ CAMINHO')
 
 
 def BFS():
@@ -966,7 +977,7 @@ def BFS():
                     mark_as_visited(neighbour, predecessor=nearest_node)
 
     if not unvisited or not path_found:
-        print('THERE IS NO PATH')
+        print('NÃO HÁ CAMINHO')
 
 
 def DFS():
@@ -996,12 +1007,12 @@ def DFS():
                     mark_as_visited(neighbour, predecessor=nearest_node)
 
     if not unvisited or not path_found:
-        print('THERE IS NO PATH')
+        print('NÃO HÁ CAMINHO')
 
 
 def find_neighbours(coords):
     """
-    Finds the neighbours of the cell at given matrix coords
+    Enncontra os vizinhos de uma célula visitada
     """
     y, x = coords
 
@@ -1026,14 +1037,14 @@ def find_neighbours(coords):
 
 def calculate_manhattan_distance(first_node, second_node):
     """
-    Calculates the manhattan distance between 2 nodes
+    Cálcula a distancia  manhattan entre 2 pontos
     """
     return abs(first_node.coords[0] - second_node.coords[0]) + abs(first_node.coords[1] - second_node.coords[1])
 
 
 def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None):
     """
-    Marks the given node as visited
+    Marca um nó como visitado e testa se o objetivo foi alcançado
     """
     global destination_coords, path_found
 
@@ -1076,7 +1087,7 @@ def mark_as_visited(node: node.Node, predecessor, distance=None, g=None, h=None)
 # def highlight_path(neighbour: node.Node):
 def highlight_path():
     """
-    Highlights the path
+    Mostra o caminho na janela pygame
     """
     global destination_coords, source_coords
 
@@ -1130,6 +1141,9 @@ def highlight_path():
 
 
 def limpar_visitados():
+    """
+        limpa todas as células da grelha a cada chegada a uma encomenda ou ponto de encontro
+    """
     for no in gv.nos_visitados:
         no.is_visited = False
         no.distance_from_start = np.inf
