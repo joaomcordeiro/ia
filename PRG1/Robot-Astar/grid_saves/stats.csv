@@ -1,15 +1,14 @@
-Mapa;Algoritmo;Nós visitados;Custo da solução;Tempo de execução
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Pequeno1;Dijkstra;910;48;0:00:04.701173
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Pequeno1;ASearch;281;48;0:00:01.743286
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1;Dijkstra;1226;83;0:00:08.998280
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1;ASearch;410;83;0:00:03.717315
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1;BFS;1234;83;0:00:09.033113
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1;DFS;1740;533;0:00:17.806378
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,Dijkstra,1226,83,0:00:08.656712
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,ASearch,410,83,0:00:03.592151
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,BFS,1234,83,0:00:08.575190
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,Dijkstra,1226,83,0:00:15.594440
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,Dijkstra,400,1,0:00:04.493482
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,Dijkstra,1226,83,0:00:15.639405
-C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,ASearch,410,83,0:00:06.410299
-None,ASearch,587,90,0:00:16.209436
+Mapa,Algoritmo,Nós visitados,Custo da solução,Tempo de execução
+
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,Dijkstra,1226,83,0:00:29.372594
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,ASearch,410,83,0:00:12.152261
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,BFS,1234,83,0:00:29.599817
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao1,DFS,1740,533,0:00:58.967431
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao2,Dijkstra,2232,183,0:00:54.855896
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao2,ASearch,1275,183,0:00:34.733131
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao2,BFS,2245,183,0:00:54.990987
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao2,DFS,2159,767,0:01:17.746667
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao3,Dijkstra,2506,239,0:01:02.894637
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao3,ASearch,1453,239,0:00:40.745206
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao3,BFS,2520,239,0:01:03.234885
+C:/Projetos/IA/PRG1/Robot-Astar/grid_saves/Comparacao3,DFS,1602,575,0:00:57.840430
